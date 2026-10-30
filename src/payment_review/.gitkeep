@@ -1,0 +1,88 @@
+package paymentreview;
+
+import java.time.LocalDate;
+
+public class Payment {
+
+    public enum PaymentMethod {
+        CASH, UPI, CREDIT_CARD, DEBIT_CARD
+    }
+
+    public enum PaymentStatus {
+        PENDING, COMPLETED, FAILED, REFUNDED
+    }
+
+    private int paymentId;
+    private int bookingId;
+    private double amount;
+    private PaymentMethod paymentMethod;
+    private PaymentStatus paymentStatus;
+    private LocalDate paymentDate;
+
+    public Payment(int paymentId, int bookingId,
+                   double amount, PaymentMethod paymentMethod) {
+
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Invalid payment amount");
+        }
+
+        this.paymentId = paymentId;
+        this.bookingId = bookingId;
+        this.amount = amount;
+        this.paymentMethod = paymentMethod;
+        this.paymentStatus = PaymentStatus.PENDING;
+        this.paymentDate = LocalDate.now();
+    }
+
+    public void makePayment() {
+        if (paymentStatus != PaymentStatus.PENDING) {
+            throw new IllegalStateException("Payment is not pending");
+        }
+
+        // Simulation only: no real money is transferred.
+        paymentStatus = PaymentStatus.COMPLETED;
+        System.out.println("Payment completed successfully!");
+    }
+
+    public void processRefund() {
+        if (paymentStatus != PaymentStatus.COMPLETED) {
+            throw new IllegalStateException("Payment cannot be refunded");
+        }
+
+        paymentStatus = PaymentStatus.REFUNDED;
+        System.out.println("Refund processed successfully!");
+    }
+
+    public void displayPaymentDetails() {
+        System.out.println("Payment ID: " + paymentId);
+        System.out.println("Booking ID: " + bookingId);
+        System.out.println("Amount: " + amount);
+        System.out.println("Payment Method: " + paymentMethod);
+        System.out.println("Payment Status: " + paymentStatus);
+        System.out.println("Payment Date: " + paymentDate);
+    }
+
+    public int getPaymentId() {
+        return paymentId;
+    }
+
+    public int getBookingId() {
+        return bookingId;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public PaymentMethod getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public PaymentStatus getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public LocalDate getPaymentDate() {
+        return paymentDate;
+    }
+}
