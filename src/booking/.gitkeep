@@ -1,0 +1,118 @@
+package booking;
+
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import room.Room;
+import room.Room.RoomStatus;
+
+public class Booking {
+
+    public enum BookingStatus {
+        CONFIRMED, CHECKED_IN, CHECKED_OUT, CANCELLED
+    }
+
+    private int bookingId;
+    private int guestId;
+    private int roomId;
+    private LocalDate checkInDate;
+    private LocalDate checkOutDate;
+    private double totalAmount;
+    private BookingStatus bookingStatus;
+
+    public Booking(int bookingId, int guestId, Room room,
+                   LocalDate checkInDate, LocalDate checkOutDate) {
+
+        if (room == null || !room.isAvailable()) {
+            throw new IllegalStateException("Room is not available");
+        }
+
+        if (checkInDate == null || checkOutDate == null
+                || !checkOutDate.isAfter(checkInDate)) {
+            throw new IllegalArgumentException("Invalid booking dates");
+        }
+
+        this.bookingId = bookingId;
+        this.guestId = guestId;
+        this.roomId = room.getRoomId();
+        this.checkInDate = checkInDate;
+        this.checkOutDate = checkOutDate;
+
+        long nights = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
+        this.totalAmount = room.calculateRoomPrice((int) nights);
+
+        this.bookingStatus = BookingStatus.CONFIRMED;
+        room.setRoomStatus(RoomStatus.BOOKED);
+    }
+
+    public void checkIn(Room room) {
+        if (bookingStatus != BookingStatus.CONFIRMED) {
+            throw new IllegalStateException("Booking cannot be checked in");
+        }
+
+        if (room.getRoomId() != roomId) {
+            throw new IllegalArgumentException("Wrong room");
+        }
+
+        room.setRoomStatus(RoomStatus.OCCUPIED);
+        bookingStatus = BookingStatus.CHECKED_IN;
+        System.out.println("Guest checked in successfully!");
+    }
+
+    public void checkOut(Room room) {
+        if (bookingStatus != BookingStatus.CHECKED_IN) {
+            throw new IllegalStateException("Guest has not checked in");
+        }
+
+        room.setRoomStatus(RoomStatus.AVAILABLE);
+        bookingStatus = BookingStatus.CHECKED_OUT;
+        System.out.println("Guest checked out successfully!");
+    }
+
+    public void cancelBooking(Room room) {
+        if (bookingStatus != BookingStatus.CONFIRMED) {
+            throw new IllegalStateException("Booking cannot be cancelled");
+        }
+
+        room.setRoomStatus(RoomStatus.AVAILABLE);
+        bookingStatus = BookingStatus.CANCELLED;
+        System.out.println("Booking cancelled successfully!");
+    }
+
+    public void displayBookingDetails() {
+        System.out.println("Booking ID: " + bookingId);
+        System.out.println("Guest ID: " + guestId);
+        System.out.println("Room ID: " + roomId);
+        System.out.println("Check In: " + checkInDate);
+        System.out.println("Check Out: " + checkOutDate);
+        System.out.println("Total Amount: " + totalAmount);
+        System.out.println("Status: " + bookingStatus);
+    }
+
+    public int getBookingId() {
+        return bookingId;
+    }
+
+    public int getGuestId() {
+        return guestId;
+    }
+
+    public int getRoomId() {
+        return roomId;
+    }
+
+    public LocalDate getCheckInDate() {
+        return checkInDate;
+    }
+
+    public LocalDate getCheckOutDate() {
+        return checkOutDate;
+    }
+
+    public double getTotalAmount() {
+        return totalAmount;
+    }
+
+    public BookingStatus getBookingStatus() {
+        return bookingStatus;
+    }
+}
